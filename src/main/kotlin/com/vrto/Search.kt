@@ -62,15 +62,12 @@ fun searchMoviesStream(rankings: List<RankingMovie>, filter: SearchFilter): Stre
 
     val printProgress = filter.unseenOnly || filter.sorted
 
-    val counter = AtomicInteger(0)
+    val counter = AtomicInteger(1)
     return stream
         .map(RankingMovie::toMovieDetail)
         .map {
-            if (printProgress) {
-                counter.addAndGet(1)
-                if (counter.get() % 10 == 0) {
-                    println("$counter % done!")
-                }
+            if (counter.step(printProgress)) {
+                println("$counter % done!")
             }
             it
         }
@@ -101,3 +98,5 @@ data class SearchResult(
 ) {
     override fun toString() = "$name ($rating%)\n\thttp://csfd.cz$link"
 }
+
+fun AtomicInteger.step(printProgress: Boolean) = printProgress && this.addAndGet(1) % 10 == 0
